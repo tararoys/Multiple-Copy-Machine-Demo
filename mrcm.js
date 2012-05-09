@@ -59,41 +59,63 @@ window.onload=function(){
     		var bufctx = buffer.getContext('2d');
     		bufctx.drawImage(canvas, 0, 0);
     		
-    		var ctx=canvas.getContext('2d');
-    		ctx.clearRect(0,0, canvas.width, canvas.height)
     		
-	    		ctx.save();
-				ctx.transform(0.5, 0, 0, 0.5, canvas.width/2, canvas.width/2);
-				ctx.drawImage(buffer,0,0);
-				//ctx.drawImage(image, 0, 0);
-				ctx.restore();
-			
-				//draw copy 2
-			
-				ctx.save();
-				ctx.transform(0.5, 0, 0, 0.5, canvas.width/4, 0);
-				ctx.drawImage(buffer,0,0);
-				//ctx.drawImage(image, 0, 0);
-				ctx.restore();
+    		var animation_buffer = document.createElement('canvas');
+    		animation_buffer.width = canvas.width;
+    		animation_buffer.height = canvas.height;
+    		var anibufctx = animation_buffer.getContext('2d');
+    		
+    		
+    		var ctx=canvas.getContext('2d');
+    		ctx.clearRect(0,0, canvas.width, canvas.height);
+    		
+    		var i=0;
+    		
+    			var animate = function() {
+    				ctx.clearRect(0,0, canvas.width, canvas.height);
+    				
+						anibufctx.clearRect(0,0, canvas.width, canvas.height);
+						
+						anibufctx.save();
+						anibufctx.transform((1-i/10), 0, 0, (1-i/10), i/5*canvas.width/2, i/5*canvas.width/2);
+						anibufctx.drawImage(buffer,0,0);
+						anibufctx.restore();
+						
+						//draw copy 1
+						anibufctx.save();
+						anibufctx.transform((1-i/10), 0, 0, (1-i/10), i/5*canvas.width/4, 0);
+						anibufctx.drawImage(buffer,0,0);
+						anibufctx.restore();
+						
+						//draw copy 3
+						anibufctx.save();
+						anibufctx.transform((1-i/10), 0, 0, (1-i/10), 0, i/5*canvas.width/2);
+						anibufctx.drawImage(buffer,0,0)
+						anibufctx.restore();
+					
+					
+					ctx.drawImage(animation_buffer,0,0);
+					i++;
+					if (i !==6){
+					
+					setTimeout(animate, 100);
+					}
+					
 				
+					var original = ctx.getImageData( 0, 0, canvas.width, canvas.height);
 			
-				//draw copy 3
-				ctx.save();
-				ctx.transform(0.5, 0, 0, 0.5, 0, canvas.width/2);
-				ctx.drawImage(buffer,0,0)
-				//ctx.drawImage(image, 0, 0);
-				ctx.restore();
-			
-			var original = ctx.getImageData( 0, 0, canvas.width, canvas.height);
-			
-			var pixels = canvas.width*canvas.height*4;
+					var pixels = canvas.width*canvas.height*4;
 	
-			while(pixels--){
-				if(original.data[pixels] !== 0){
-					original.data[pixels]=255;
-				}
-			}
-			ctx.putImageData(original, 0, 0);
+					while(pixels--){
+						if(original.data[pixels] !== 0){
+							original.data[pixels]=255;
+						}
+					}
+					ctx.putImageData(original, 0, 0);
+	    			
+	    			};
+    		
+					setTimeout(animate, 100);
 		}
 		
 		copy_button.addEventListener("click", copy, false );
