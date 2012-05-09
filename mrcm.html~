@@ -1,0 +1,14 @@
+<html>
+<head>
+<title>Multiple Reduction Copy Machine Demo</title>
+<link rel="stylesheet" type="text/css" href="temp.css">
+<script src="mrcm.js"></script>
+</head>
+
+<div>
+<div>
+<canvas id="canvas" width="600" height="600"></canvas>
+<button id="copy_button">Run the Copy Machine Once</button>
+</div>
+</div>
+</html>
