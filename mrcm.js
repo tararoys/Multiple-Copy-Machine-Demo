@@ -58,8 +58,6 @@ window.onload=function(){
     		var bufctx = buffer.getContext('2d');
     		bufctx.drawImage(canvas, 0, 0);
     		
-    		var ctx=canvas.getContext('2d');
-    		
     		var transformCanvas = function(canvas, transform_matrix){
     			var t = transform_matrix;
     			
@@ -91,36 +89,104 @@ window.onload=function(){
     		};
     		
     		
-    		var calculateFrame = function(transform_matrix, canvas, buffer) {
+    		
+    		var calculateFrame = function(transform_matrix, canvas, buffer, background) {
     			var ctx=canvas.getContext('2d');
     			ctx.clearRect(0,0, canvas.width, canvas.height);
-				var transformed_image=transformCanvas(buffer, transform_matrix);
+				var transformed_image = transformCanvas(buffer, transform_matrix);
+				ctx.drawImage(background, 0, 0);
 				ctx.drawImage(transformed_image, 0, 0);
 				darkenImage(canvas);
 	    			
 	    	};
-    		
-    		var i=0;
-			var id = setInterval(function(){ 
-					if (i === 6){
-						clearInterval(id);
-					}
-					else{
-						var tween=i;
-						var transform_matrix = {
-    						a: (1-i/10),
-    						b: 0,
-    						c: 0,
-    						d: (1-i/10),
-    					
-    						x: i/5*canvas.width/2,
-    						y: i/5*canvas.width/2
-    				
-    					};
-						calculateFrame(transform_matrix, canvas, buffer);
-						i++;
-					}
-				}, 100);
+	    	
+	    	var getInterpolationMatrix = function(frame_index, total_num_frames, transform){
+	    			//linear interpolation
+	    			
+	    			var ratio = frame_index/total_num_frames;
+	    			
+	    			return {
+	    						a: (1-ratio*transform.a),
+	    						b: 0,
+	    						c: 0,
+	    						d: (1-ratio*transform.d),
+	    					
+	    						x: ratio*transform.x,
+	    						y: ratio*transform.y
+	    					};
+	    		};
+	    	
+	    	
+	    	var drawAnimation = function(){
+	    		
+	    		
+	    		
+	    		var transform_matrix_array=[{
+	    						a: (0.5),
+	    						b: 0,
+	    						c: 0,
+	    						d: (0.5),
+	    					
+	    						x: canvas.width/2,
+	    						y: canvas.width/2
+	    		}, 
+	    		{
+	    						a: (0.5),
+	    						b: 0,
+	    						c: 0,
+	    						d: (0.5),
+	    					
+	    						x: canvas.width/4,
+	    						y: 0
+	    		
+	    		},
+	    		{
+	    						a: (0.5),
+	    						b: 0,
+	    						c: 0,
+	    						d: (0.5),
+	    					
+	    						x: 0,
+	    						y: canvas.width/2
+	    		
+	    		}
+	    		];
+	    		
+	    		var frame_index = 0;
+	    		var num_frames = 5;
+	    		var keyframe_index = 0;
+	    		var num_keyframes = transform_matrix_array.length;
+	    		var background = document.createElement('canvas');
+	    		background.width = canvas.width;
+    			background.height = canvas.height;
+	    		var bgctx = background.getContext('2d');
+	    		
+				var id = setInterval(function(){ 
+						if (keyframe_index === num_keyframes){
+							clearInterval(id);
+						}
+						else{
+						
+							var transform_matrix = getInterpolationMatrix(frame_index, num_frames, transform_matrix_array[keyframe_index]);
+							
+							calculateFrame(transform_matrix, canvas, buffer, background);
+							frame_index++;
+							if(frame_index === num_frames){
+							//alert(num_frames + " " + keyframe_index);
+								
+    						//bgctx.clearRect(0,0, canvas.width, canvas.height);
+							}
+							
+							if(frame_index > num_frames){
+								bgctx.drawImage(canvas, 0, 0);
+								frame_index=0;
+								keyframe_index++;
+							}
+						}
+					}, 100);
+			};
+			
+			drawAnimation();
 			
 		}
 		
