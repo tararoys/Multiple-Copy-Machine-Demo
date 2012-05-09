@@ -1,5 +1,22 @@
 window.onload=function(){
 
+	var findPos = function(obj){
+		
+	
+			current_pos_left=current_pos_top=0;
+			if(obj.offsetParent){
+				do {
+					current_pos_left += obj.offsetLeft;
+					current_pos_top += obj.offsetTop;
+				}while(obj=obj.offsetParent);
+			}
+			//alert("got here");
+			return {
+					 x: current_pos_left,
+					 y: current_pos_top
+				};
+		};
+
 	var drawingCanvas = function(canvas){
 		var drawer = {
 			touchstart:function(coords, draw_context){ 
@@ -19,8 +36,8 @@ window.onload=function(){
 			var ctx=this.getContext("2d");
 			ctx.lineWidth=10;
 			var coords= { 
-				x: event.changedTouches[0].pageX,
-				y: event.changedTouches[0].pageY
+				x: event.changedTouches[0].pageX-findPos(this).x,
+				y: event.changedTouches[0].pageY-findPos(this).y
 			};
 			drawer[event.type](coords, ctx);
 		}; 
