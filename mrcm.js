@@ -1,6 +1,8 @@
 window.onload=function(){
 
-	var findPos = function(obj){
+	var drawingCanvas = function(canvas){
+	
+		var findPos = function(obj){
 	
 			current_pos_left=current_pos_top=0;
 			if(obj.offsetParent){
@@ -15,8 +17,7 @@ window.onload=function(){
 					 y: current_pos_top
 				};
 		};
-
-	var drawingCanvas = function(canvas){
+		
 		var drawer = {
 			touchstart:function(coords, draw_context){ 
 				draw_context.beginPath();
@@ -49,8 +50,7 @@ window.onload=function(){
 	
 	var multipleReductionCopyMachine = function(canvas){
 		
-		var copy=function(event){
-			//create a copy of the original image.  
+		var oneMRCMIteration=function(canvas){
 			
 			var buffer = document.createElement('canvas');
     		buffer.width = canvas.width;
@@ -58,45 +58,27 @@ window.onload=function(){
     		var bufctx = buffer.getContext('2d');
     		bufctx.drawImage(canvas, 0, 0);
     		
-    		var animation_buffer = document.createElement('canvas');
-    		animation_buffer.width = canvas.width;
-    		animation_buffer.height = canvas.height;
-    		var anibufctx = animation_buffer.getContext('2d');
-    		
-    		var copy1 = document.createElement('canvas');
-    		copy1.width = canvas.width;
-    		copy1.height = canvas.height;
-    		var copy1ctx = copy1.getContext('2d');
-    		
     		var ctx=canvas.getContext('2d');
-    		ctx.clearRect(0,0, canvas.width, canvas.height);
     		
-    		var transformCanvas = function(canvas, xform_object){
+    		var transformCanvas = function(canvas, transform_matrix){
+    			var t = transform_matrix;
+    			
+    			var transform_buffer = document.createElement('canvas');
+    			transform_buffer.width = canvas.width;
+    			transform_buffer.height = canvas.height;
+    			var tbctx = transform_buffer.getContext('2d');
+    				
+				tbctx.transform(t.a, t.b, t.c, t.d, t.x, t.y);
+				tbctx.drawImage(canvas,0,0);
+						
+				return transform_buffer;
     		
     		};
     		
-    		var i=0;
-    			var animate = function() {
-    				ctx.clearRect(0,0, canvas.width, canvas.height);
-    				
-    				//replace this with a function that takes in a canvas and a transform matrix and outputs a canvas.  
-    				
-						anibufctx.clearRect(0,0, canvas.width, canvas.height);
-						
-						anibufctx.save();
-						anibufctx.transform((1-i/10), 0, 0, (1-i/10), i/5*canvas.width/2, i/5*canvas.width/2);
-						anibufctx.drawImage(buffer,0,0);
-						anibufctx.restore();
-					
-					ctx.drawImage(animation_buffer,0,0);
-					i++;
-					
-					if (i === 6){
-					clearInterval(id);
-					copy1ctx.drawImage(animation_buffer,0,0);
-					}
-				
-					var original = ctx.getImageData( 0, 0, canvas.width, canvas.height);
+    		var darkenImage = function(canvas){
+    			var ctx=canvas.getContext("2d");
+    			
+    			var original = ctx.getImageData( 0, 0, canvas.width, canvas.height);
 			
 					var pixels = canvas.width*canvas.height*4;
 	
@@ -106,17 +88,51 @@ window.onload=function(){
 						}
 					}
 					ctx.putImageData(original, 0, 0);
-	    			
-	    			};
+    		};
     		
-					var id = setInterval(animate, 100);
+    		
+    		var calculateFrame = function(transform_matrix, canvas, buffer) {
+    			var ctx=canvas.getContext('2d');
+    			ctx.clearRect(0,0, canvas.width, canvas.height);
+				var transformed_image=transformCanvas(buffer, transform_matrix);
+				ctx.drawImage(transformed_image, 0, 0);
+				darkenImage(canvas);
+	    			
+	    	};
+    		
+    		var i=0;
+			var id = setInterval(function(){ 
+					if (i === 6){
+						clearInterval(id);
+					}
+					else{
+						var tween=i;
+						var transform_matrix = {
+    						a: (1-i/10),
+    						b: 0,
+    						c: 0,
+    						d: (1-i/10),
+    					
+    						x: i/5*canvas.width/2,
+    						y: i/5*canvas.width/2
+    				
+    					};
+						calculateFrame(transform_matrix, canvas, buffer);
+						i++;
+					}
+				}, 100);
+			
 		}
 		
-		copy_button.addEventListener("click", copy, false );
+		var copy_button=document.getElementById("copy_button");
+		copy_button.addEventListener("click", function(){
+				oneMRCMIteration(canvas);
+			}, false );
 	}
 	
 	multipleReductionCopyMachine(document.getElementById("canvas"));
+	
 	document.body.addEventListener('touchmove',function(event){
 			event.preventDefault();
 		},false);
-}
+};
