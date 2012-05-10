@@ -51,12 +51,6 @@ window.onload=function(){
 	var multipleReductionCopyMachine = function(canvas){
 		
 		var oneMRCMIteration=function(canvas){
-			
-			var buffer = document.createElement('canvas');
-    		buffer.width = canvas.width;
-    		buffer.height = canvas.height;
-    		var bufctx = buffer.getContext('2d');
-    		bufctx.drawImage(canvas, 0, 0);
     		
     		var transformCanvas = function(canvas, transform_matrix){
     			var t = transform_matrix;
@@ -96,7 +90,8 @@ window.onload=function(){
 				var transformed_image = transformCanvas(buffer, transform_matrix);
 				ctx.drawImage(background, 0, 0);
 				ctx.drawImage(transformed_image, 0, 0);
-				darkenImage(canvas);
+				
+				
 	    			
 	    	};
 	    	
@@ -152,6 +147,12 @@ window.onload=function(){
 	    		}
 	    		];
 	    		
+	    		var buffer = document.createElement('canvas');
+    			buffer.width = canvas.width;
+    			buffer.height = canvas.height;
+    			var bufctx = buffer.getContext('2d');
+    			bufctx.drawImage(canvas, 0, 0);
+	    		
 	    		var frame_index = 0;
 	    		var num_frames = 5;
 	    		var keyframe_index = 0;
@@ -160,6 +161,8 @@ window.onload=function(){
 	    		background.width = canvas.width;
     			background.height = canvas.height;
 	    		var bgctx = background.getContext('2d');
+	    		
+	    		
 	    		
 				var id = setInterval(function(){ 
 						if (keyframe_index === num_keyframes){
@@ -170,23 +173,29 @@ window.onload=function(){
 							var transform_matrix = getInterpolationMatrix(frame_index, num_frames, transform_matrix_array[keyframe_index]);
 							
 							calculateFrame(transform_matrix, canvas, buffer, background);
+							var ctx=canvas.getContext('2d');							
+							
+						
 							frame_index++;
-							if(frame_index === num_frames){
-							//alert(num_frames + " " + keyframe_index);
-								
-    						//bgctx.clearRect(0,0, canvas.width, canvas.height);
-							}
 							
 							if(frame_index > num_frames){
 								bgctx.drawImage(canvas, 0, 0);
 								frame_index=0;
 								keyframe_index++;
 							}
+							if(!(keyframe_index===3)  ){
+									ctx.globalAlpha=0.5;
+									ctx.drawImage(buffer, 0, 0);
+									ctx.globalAlpha=1.0;
+									
+							}
+							
 						}
 					}, 100);
 			};
 			
 			drawAnimation();
+			darkenImage(canvas);
 			
 		}
 		
