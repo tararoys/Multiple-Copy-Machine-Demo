@@ -112,7 +112,7 @@ window.onload=function(){
 	    		};
 	    	
 	    	
-	    	var drawAnimation = function(){
+	    	var drawAnimation = function(canvas){
 	    		
 	    		
 	    		
@@ -154,15 +154,13 @@ window.onload=function(){
     			bufctx.drawImage(canvas, 0, 0);
 	    		
 	    		var frame_index = 0;
-	    		var num_frames = 5;
+	    		var num_frames = 30;
 	    		var keyframe_index = 0;
 	    		var num_keyframes = transform_matrix_array.length;
 	    		var background = document.createElement('canvas');
 	    		background.width = canvas.width;
     			background.height = canvas.height;
 	    		var bgctx = background.getContext('2d');
-	    		
-	    		
 	    		
 				var id = setInterval(function(){ 
 						if (keyframe_index === num_keyframes){
@@ -173,8 +171,7 @@ window.onload=function(){
 							var transform_matrix = getInterpolationMatrix(frame_index, num_frames, transform_matrix_array[keyframe_index]);
 							
 							calculateFrame(transform_matrix, canvas, buffer, background);
-							var ctx=canvas.getContext('2d');							
-							
+							var ctx=canvas.getContext('2d');
 						
 							frame_index++;
 							
@@ -183,20 +180,16 @@ window.onload=function(){
 								frame_index=0;
 								keyframe_index++;
 							}
-							if(!(keyframe_index===3)  ){
+							if(!(keyframe_index===num_keyframes)  ){
 									ctx.globalAlpha=0.5;
 									ctx.drawImage(buffer, 0, 0);
 									ctx.globalAlpha=1.0;
-									
 							}
-							
 						}
-					}, 100);
+					}, 10);
 			};
-			
-			drawAnimation();
+			drawAnimation(canvas);
 			darkenImage(canvas);
-			
 		}
 		
 		var copy_button=document.getElementById("copy_button");
